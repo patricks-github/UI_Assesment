@@ -7,11 +7,13 @@ public class scr_movement : MonoBehaviour {
     GameObject Head;
     Animator Anim;
     Vector3 movement_vector;
+    public Vector3 display_movement;
 
     CharacterController player;
 
     bool Controlable = true;
     bool inAir = false;
+    public bool movement_Update;
 
     float movement_speed = 2.0f;
     float jump_speed = 5.0f;
@@ -19,6 +21,8 @@ public class scr_movement : MonoBehaviour {
     float moveAxisForward;
     float moveAxisSide;
     float moveAxisUp;
+    float timer = 0;
+    float timer_reset = 0.05f;
 
     float gravity = 9.81f;
 
@@ -46,6 +50,24 @@ public class scr_movement : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
+        if (movement_Update == false)
+        {
+            display_movement = new Vector3((transform.InverseTransformDirection(player.velocity).x), (transform.InverseTransformDirection(player.velocity).y), (transform.InverseTransformDirection(player.velocity).z));
+        }
+        else
+        {
+            if (timer > 0)
+            {
+                timer -= 1 * Time.deltaTime;
+            }
+            else
+            {
+                movement_Update = false;
+            }
+        }
+        //Debug.Log("X = " + (int)(transform.InverseTransformDirection(player.velocity).x) + ", Y = " + (int)(transform.InverseTransformDirection(player.velocity).y) + ", Z = " + (int)(transform.InverseTransformDirection(player.velocity).z));
+        
+
         if (Controlable == true)
         {
             //Mouse
@@ -62,7 +84,6 @@ public class scr_movement : MonoBehaviour {
 
             if (player.isGrounded)
             {
-                moveAxisUp = 0;
 
                 //Movement
                 if (Input.GetKey(KeyCode.LeftShift))
@@ -116,10 +137,17 @@ public class scr_movement : MonoBehaviour {
     public void Trigger_Jump()
     {
         Anim.SetTrigger("Jump");
+        display_movement.y = 2;
+        movement_Update = true;
+        timer = timer_reset;
     }
 
     public void Trigger_Land()
     {
         Anim.SetTrigger("Land");
+        display_movement.y = 2;
+        Debug.Log("Landed");
+        movement_Update = true;
+        timer = timer_reset;
     }
 }
