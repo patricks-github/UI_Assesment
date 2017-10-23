@@ -7,7 +7,13 @@ public class scr_camera : MonoBehaviour {
     GameObject Head;
     GameObject Camera;
 
-    bool Interactable;
+    bool canShoot = true;
+    public bool Interactable;
+    public bool Enemy;
+
+    float shotTimer;
+    float shotTimer_reset = 0.1f;
+    float damage = 50.0f;
 
     float lookDistance = 1000.0f;
 
@@ -21,25 +27,77 @@ public class scr_camera : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
+        //Shoot timer
+        if (!canShoot)
+        {
+            canShoot = false;
+
+            if (shotTimer > 0)
+            {
+                shotTimer -= 1 * Time.deltaTime;
+            }
+            else
+            {
+                canShoot = true;
+                Debug.Log("Can Shoot");
+            }
+        }
+
         //Raycasting
         RaycastHit hitInfo;
-
         //Ray properties
         Ray rayCast = new Ray(Camera.transform.position, Camera.transform.forward * lookDistance);
-
+        
         //Checking hit info
         if (Physics.Raycast(rayCast, out hitInfo))
         {
-            Interactable = (hitInfo.collider.tag == "Interactable");
+            //Display ray in editor
+            Debug.DrawRay(Camera.transform.position, Camera.transform.forward * hitInfo.distance);
+
+            switch (hitInfo.collider.tag)
+            {
+                default:
+                    Interactable = false;
+                    Enemy = false;
+                    break;
+
+                case ("Interactable"):
+                    if (hitInfo.distance < 1.5f)
+                    {
+                        Interactable = true;
+                    }
+                    else
+                    {
+                        Interactable = false;
+                    }
+                    break;
+
+                case ("Enemy"):
+                    Interactable = false;
+                    Enemy = true;
+                    break;
+            }
         }
 
-        //Display ray in editor
-        Debug.DrawRay(Camera.transform.position, Camera.transform.forward * hitInfo.distance);
-
-        if (Interactable)
+        if (Input.GetMouseButton(0) && canShoot)
         {
-            Debug.Log("Interactable: " + hitInfo.collider.name);
+            Debug.Log("Shoot");
+
+            shotTimer = shotTimer_reset;
+            canShoot = false;
+
+            if (Physics.Raycast(rayCast, out hitInfo))
+            {
+                if (hitInfo.collider.CompareTag("Enemy"))
+                {
+                    hitInfo.collider.gameObject.GetComponent<scr_enemy>().TakeHit(damage);
+                    Debug.Log("Hit Enemy");
+                }
+                else
+                {
+                    Debug.Log("No Hit");
+                }
+            }
         }
-        
     }
 }

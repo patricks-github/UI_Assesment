@@ -23,6 +23,11 @@ public class scr_movement : MonoBehaviour {
     float moveAxisUp;
     float timer = 0;
     float timer_reset = 0.05f;
+    public float stamina;
+    float stamina_max = 100.0f;
+    float stamina_drain = 50.0f;
+    float stamina_regen = 5.0f;
+    float jump_cost = 25.0f;
 
     float gravity = 9.81f;
 
@@ -38,6 +43,8 @@ public class scr_movement : MonoBehaviour {
     // Use this for initialization
     void Start ()
     {
+        stamina = stamina_max; 
+
         cursorLockState = CursorLockMode.Locked;
         CursorLockSet();
 
@@ -84,23 +91,36 @@ public class scr_movement : MonoBehaviour {
 
             if (player.isGrounded)
             {
-
                 //Movement
                 if (Input.GetKey(KeyCode.LeftShift))
                 {
-                    Anim.SetFloat("Sprint", 5.0f);
-                    movement_modifier = 2;
+                    if (stamina > 0)
+                    {
+                        Anim.SetFloat("Sprint", 5.0f);
+                        movement_modifier = 2;
+
+                        stamina -= stamina_drain * Time.deltaTime;
+                    }
+                    else
+                    {
+                        movement_modifier = 1;
+                    }
                 }
                 else
                 {
                     Anim.SetFloat("Sprint", 1.0f);
                     movement_modifier = 1;
+
+                    if (stamina < stamina_max)
+                    {
+                        stamina += stamina_drain * Time.deltaTime;
+                    }
                 }
 
-                if (Input.GetButton("Jump"))
+                if (Input.GetButton("Jump") && stamina >= jump_cost)
                 {
                     moveAxisUp = jump_speed;
-                    Debug.Log("Jump");
+                    stamina -= jump_cost;
                 }
 
                 if (inAir)
@@ -136,6 +156,8 @@ public class scr_movement : MonoBehaviour {
 
     public void Trigger_Jump()
     {
+        //Debug.Log("Jump");
+
         Anim.SetTrigger("Jump");
         display_movement.y = 2;
         movement_Update = true;
@@ -144,9 +166,10 @@ public class scr_movement : MonoBehaviour {
 
     public void Trigger_Land()
     {
+        //Debug.Log("Landed");
+
         Anim.SetTrigger("Land");
         display_movement.y = 2;
-        Debug.Log("Landed");
         movement_Update = true;
         timer = timer_reset;
     }
