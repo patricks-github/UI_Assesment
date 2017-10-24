@@ -9,9 +9,11 @@ public class scr_hud : MonoBehaviour {
     public scr_movement playerMovement;
     public scr_camera playerCamera;
 
+    Animator HUDAnim;
+    Animator HitmarkerAnim;
+
     GameObject HUD;
     GameObject Interactable;
-    GameObject Crosshair;
 
     Image Stamina;
 
@@ -27,7 +29,8 @@ public class scr_hud : MonoBehaviour {
 
         Interactable = HUD.transform.transform.Find("Interactable").gameObject;
         Stamina = HUD.transform.Find("Stamina").gameObject.GetComponent<Image>();
-        Crosshair = transform.Find("EnemyCrosshair").gameObject;
+        HUDAnim = transform.GetComponent<Animator>();
+        HitmarkerAnim = transform.Find("Hitmarker").GetComponent<Animator>();
 
         HUDPosition = HUD.GetComponent<RectTransform>();
 
@@ -61,14 +64,24 @@ public class scr_hud : MonoBehaviour {
         {
             Interactable.SetActive(false);
         }
+    }
 
-        if (playerCamera.Enemy)
+    public void HitMarker()
+    {
+        HitmarkerAnim.SetTrigger("Hit");
+    }
+
+    public void Escape()
+    {
+        switch (playerMovement.controllable)
         {
-            Crosshair.SetActive(true);
-        }
-        else
-        {
-            Crosshair.SetActive(false);
+            case (true):
+                HUDAnim.SetTrigger("Open");
+                break;
+
+            case (false):
+                HUDAnim.SetTrigger("Close");
+                break;
         }
     }
 }

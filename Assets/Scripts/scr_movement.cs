@@ -11,9 +11,12 @@ public class scr_movement : MonoBehaviour {
 
     CharacterController player;
 
-    bool Controlable = true;
+    public GameObject HUD;
+
+    public bool controllable = true;
     bool inAir = false;
     public bool movement_Update;
+    public bool paused;
 
     float movement_speed = 2.0f;
     float jump_speed = 5.0f;
@@ -72,10 +75,16 @@ public class scr_movement : MonoBehaviour {
                 movement_Update = false;
             }
         }
-        //Debug.Log("X = " + (int)(transform.InverseTransformDirection(player.velocity).x) + ", Y = " + (int)(transform.InverseTransformDirection(player.velocity).y) + ", Z = " + (int)(transform.InverseTransformDirection(player.velocity).z));
-        
 
-        if (Controlable == true)
+        //Debug.Log("X = " + (int)(transform.InverseTransformDirection(player.velocity).x) + ", Y = " + (int)(transform.InverseTransformDirection(player.velocity).y) + ", Z = " + (int)(transform.InverseTransformDirection(player.velocity).z));
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+            Escape("Escape");
+
+        if (Input.GetKeyDown(KeyCode.Tab))
+            Escape("Tab");
+
+        if (controllable == true)
         {
             //Mouse
             var md = new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y"));
@@ -138,14 +147,54 @@ public class scr_movement : MonoBehaviour {
                 }
             }
 
+            //Movement Directional Control
             moveAxisForward = Input.GetAxis("Vertical") * movement_speed * movement_modifier;
             moveAxisSide = Input.GetAxis("Horizontal") * movement_speed * movement_modifier;
+        }
+        else
+        {
+            //Stop directional movement if uncontrollable
+            movement_modifier = 1;
+            
+            moveAxisForward = 0 * movement_speed * movement_modifier;
+            moveAxisSide = 0 * movement_speed * movement_modifier;
+        }
 
-            moveAxisUp -= gravity * Time.deltaTime;
+        //Apply movement
+        moveAxisUp -= gravity * Time.deltaTime;
 
-            movement_vector = new Vector3(moveAxisSide, moveAxisUp, moveAxisForward);
-            movement_vector = transform.rotation * movement_vector;
-            player.Move(movement_vector * Time.deltaTime);
+        movement_vector = new Vector3(moveAxisSide, moveAxisUp, moveAxisForward);
+        movement_vector = transform.rotation * movement_vector;
+        player.Move(movement_vector * Time.deltaTime);
+    }
+
+    public void Escape(string keyCode)
+    {
+        switch (controllable)
+        {
+            case (true):
+                controllable = false;
+                
+                cursorLockState = CursorLockMode.None;
+                CursorLockSet();
+                break;
+
+            case (false):
+                controllable = true;
+                
+                cursorLockState = CursorLockMode.Locked;
+                CursorLockSet();
+                break;
+        }
+
+        switch (keyCode)
+        {
+            case ("Escape"):
+                HUD.GetComponent<scr_hud>().Escape();
+                break;
+            case ("Tab"):
+                HUD.GetComponent<scr_hud>().Escape();
+                break;
         }
     }
 
