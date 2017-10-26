@@ -6,14 +6,17 @@ using UnityEngine.UI;
 public class scr_hud : MonoBehaviour {
 
     public GameObject player;
-    public scr_movement playerMovement;
-    public scr_camera playerCamera;
+
+    scr_movement playerMovement;
+    scr_camera playerCamera;
 
     Animator HUDAnim;
     Animator HitmarkerAnim;
 
     GameObject HUD;
+    GameObject HUDHolder;
     GameObject Interactable;
+    GameObject Compass;
 
     Image Stamina;
 
@@ -21,16 +24,21 @@ public class scr_hud : MonoBehaviour {
     
     Vector3 Displacement;
 
+    public float compassOffset;
+
     public float intensity;
 
     // Use this for initialization
     void Start () {
-        HUD = transform.Find("Hud").gameObject;
+        HUD = transform.Find("HUD_Holder").transform.Find("HUD").gameObject;
+        HUDHolder = transform.Find("HUD_Holder").gameObject;
+        //HitmarkerAnim = transform.Find("Hitmarker").GetComponent<Animator>();
 
-        Interactable = HUD.transform.transform.Find("Interactable").gameObject;
-        Stamina = HUD.transform.Find("Stamina").gameObject.GetComponent<Image>();
         HUDAnim = transform.GetComponent<Animator>();
-        HitmarkerAnim = transform.Find("Hitmarker").GetComponent<Animator>();
+
+        Compass = HUD.transform.Find("BarBottom").transform.Find("Compass").gameObject;
+        Interactable = HUD.transform.transform.Find("Interactable").gameObject;
+        Stamina = HUD.transform.Find("BarBottom").transform.Find("Health").GetComponent<Image>();
 
         HUDPosition = HUD.GetComponent<RectTransform>();
 
@@ -44,6 +52,15 @@ public class scr_hud : MonoBehaviour {
     void Update()
     {
         Stamina.fillAmount = playerMovement.stamina / 100;
+        
+        //Compass
+        compassOffset = player.transform.localEulerAngles.y / 360;
+        Compass.GetComponent<Renderer>().materials[0].SetTextureOffset("_MainTex", new Vector2(compassOffset,0));
+
+        Color Coolcolour = Compass.GetComponent<Renderer>().material.color;
+        Coolcolour.a = transform.Find("HUD_Holder").transform.GetComponent<CanvasGroup>().alpha;
+
+        Compass.GetComponent<Renderer>().material.color = Coolcolour;
 
         Displacement = playerMovement.display_movement * intensity;
 
@@ -53,9 +70,10 @@ public class scr_hud : MonoBehaviour {
         if (Input.GetKeyUp(KeyCode.PageUp))
             intensity += 0.5f;
 
-        if (Input.GetKeyUp(KeyCode.PageDown))
+        if (Input.GetKeyUp(KeyCode.PageDown))   
             intensity -= 0.5f;
-
+        
+        
         if (playerCamera.Interactable)
         {
             Interactable.SetActive(true);
@@ -68,12 +86,26 @@ public class scr_hud : MonoBehaviour {
 
     public void HitMarker()
     {
-        HitmarkerAnim.SetTrigger("Hit");
+        //HitmarkerAnim.SetTrigger("Hit");
+    }
+
+    public void Tab()
+    {
+        if (player.GetComponent<scr_movement>().controllable)
+        {
+            HUDAnim.SetTrigger("Close");
+
+        }
+        else
+        {
+
+            HUDAnim.SetTrigger("Open");
+        }
     }
 
     public void Escape()
     {
-        switch (playerMovement.controllable)
+        switch (player.GetComponent<scr_movement>().controllable)
         {
             case (true):
                 HUDAnim.SetTrigger("Open");

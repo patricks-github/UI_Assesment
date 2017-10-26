@@ -6,6 +6,9 @@ public class scr_camera : MonoBehaviour {
 
     GameObject Head;
     GameObject Camera;
+    
+    Ray rayCast;
+    RaycastHit hitInfo;
 
     public GameObject HUD;
 
@@ -85,25 +88,34 @@ public class scr_camera : MonoBehaviour {
 
             if (Input.GetMouseButton(0) && canShoot)
             {
-                Debug.Log("Shoot");
+                Shoot();
+            }
+        }
+    }
 
-                shotTimer = shotTimer_reset;
-                canShoot = false;
+    void Shoot()
+    {
+        Ray rayCast = new Ray(Camera.transform.position, Camera.transform.forward * lookDistance);
 
-                if (Physics.Raycast(rayCast, out hitInfo))
-                {
-                    if (hitInfo.collider.CompareTag("Enemy"))
-                    {
-                        hitInfo.collider.gameObject.GetComponent<scr_enemy>().TakeHit(damage);
-                        Debug.Log("Hit Enemy");
+        Debug.Log("Shoot");
 
-                        HUD.GetComponent<scr_hud>().HitMarker();
-                    }
-                    else
-                    {
-                        Debug.Log("No Hit");
-                    }
-                }
+        shotTimer = shotTimer_reset;
+        canShoot = false;
+
+        gameObject.GetComponent<scr_movement>().Shoot();
+
+        if (Physics.Raycast(rayCast, out hitInfo))
+        {
+            if (hitInfo.collider.CompareTag("Enemy"))
+            {
+                hitInfo.collider.gameObject.GetComponent<scr_enemy>().TakeHit(damage);
+                Debug.Log("Hit Enemy");
+
+                HUD.GetComponent<scr_hud>().HitMarker();
+            }
+            else
+            {
+                Debug.Log("No Hit");
             }
         }
     }

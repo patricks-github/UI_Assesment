@@ -11,12 +11,14 @@ public class scr_movement : MonoBehaviour {
 
     CharacterController player;
 
-    public GameObject HUD;
+    public GameObject Blur;
+    public GameObject UI_Canvas;
+    public GameObject Radial;
 
     public bool controllable = true;
     bool inAir = false;
     public bool movement_Update;
-    public bool paused;
+    public bool paused = false;
 
     float movement_speed = 2.0f;
     float jump_speed = 5.0f;
@@ -28,9 +30,9 @@ public class scr_movement : MonoBehaviour {
     float timer_reset = 0.05f;
     public float stamina;
     float stamina_max = 100.0f;
-    float stamina_drain = 50.0f;
-    float stamina_regen = 5.0f;
-    float jump_cost = 25.0f;
+    float stamina_drain = 25.0f;
+    float stamina_regen = 20.0f;
+    float jump_cost = 10.0f;
 
     float gravity = 9.81f;
 
@@ -55,7 +57,10 @@ public class scr_movement : MonoBehaviour {
 
         player = GetComponent<CharacterController>();
         Head = transform.Find("Head").gameObject;
-	}
+        Blur = Head.transform.Find("Blur").gameObject;
+
+        Radial.SetActive(false);
+    }
 	
 	// Update is called once per frame
 	void Update ()
@@ -79,10 +84,12 @@ public class scr_movement : MonoBehaviour {
         //Debug.Log("X = " + (int)(transform.InverseTransformDirection(player.velocity).x) + ", Y = " + (int)(transform.InverseTransformDirection(player.velocity).y) + ", Z = " + (int)(transform.InverseTransformDirection(player.velocity).z));
 
         if (Input.GetKeyDown(KeyCode.Escape))
-            Escape("Escape");
+            PauseMenu();
 
-        if (Input.GetKeyDown(KeyCode.Tab))
-            Escape("Tab");
+        if (Input.GetKey(KeyCode.Tab))
+            TabMenu("Open");
+        else
+            TabMenu("Close");
 
         if (controllable == true)
         {
@@ -122,7 +129,7 @@ public class scr_movement : MonoBehaviour {
 
                     if (stamina < stamina_max)
                     {
-                        stamina += stamina_drain * Time.deltaTime;
+                        stamina += stamina_regen * Time.deltaTime;
                     }
                 }
 
@@ -168,34 +175,85 @@ public class scr_movement : MonoBehaviour {
         player.Move(movement_vector * Time.deltaTime);
     }
 
-    public void Escape(string keyCode)
+    public void TabMenu(string keyCode)
     {
-        switch (controllable)
+        if (!paused)
         {
-            case (true):
-                controllable = false;
-                
-                cursorLockState = CursorLockMode.None;
-                CursorLockSet();
-                break;
+            switch (keyCode)
+            {
+                case ("Open"):
+                    if (controllable)
+                        cursorLockState = CursorLockMode.Locked;
+                        CursorLockSet();
 
-            case (false):
-                controllable = true;
-                
-                cursorLockState = CursorLockMode.Locked;
-                CursorLockSet();
-                break;
+
+                    UI_Canvas.GetComponent<scr_hud>().Tab();
+
+                    controllable = false;
+
+                    Radial.SetActive(true);
+
+                    UI_Canvas.GetComponent<scr_radial>().Tab();
+
+                    Cursor.visible = true;
+
+                    cursorLockState = CursorLockMode.None;
+                    CursorLockSet();
+
+                    Blur.SetActive(true);
+
+                    //Debug.Log("TAB");
+                    break;
+
+                case ("Close"):
+                    if (!controllable)
+                    {
+                        Blur.SetActive(false);
+
+                        UI_Canvas.GetComponent<scr_hud>().Tab();
+                        Radial.SetActive(false);
+
+
+                        Cursor.visible = false;
+                        cursorLockState = CursorLockMode.Locked;
+                        CursorLockSet();
+                    }
+
+                    controllable = true;
+                    
+                    break;
+            }
         }
+    }
 
-        switch (keyCode)
+    public void PauseMenu()
+    {
+        if (!paused)
         {
-            case ("Escape"):
-                HUD.GetComponent<scr_hud>().Escape();
-                break;
-            case ("Tab"):
-                HUD.GetComponent<scr_hud>().Escape();
-                break;
+            Blur.SetActive(true);
+            Radial.SetActive(false);
+            paused = true;
+            controllable = false;
+            UI_Canvas.GetComponent<scr_hud>().Escape();
+            cursorLockState = CursorLockMode.None;
+            Cursor.visible = true;
+
+            CursorLockSet();
         }
+        else
+        {
+            controllable = true;
+            Blur.SetActive(false);
+
+            UI_Canvas.GetComponent<scr_hud>().Escape();
+
+            Cursor.visible = false;
+            cursorLockState = CursorLockMode.Locked;
+            CursorLockSet();
+           
+            paused = false;
+        }
+        
     }
 
     public void CursorLockSet()
@@ -221,5 +279,14 @@ public class scr_movement : MonoBehaviour {
         display_movement.y = 2;
         movement_Update = true;
         timer = timer_reset;
+    }
+
+    public void Shoot()
+    {
+        //Debug.Log("Landed");
+
+        display_movement.z = 0.5f;
+        movement_Update = true;
+        timer = timer_reset / 2;
     }
 }
