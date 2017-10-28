@@ -9,6 +9,7 @@ public class scr_hud : MonoBehaviour {
 
     scr_movement playerMovement;
     scr_camera playerCamera;
+    scr_radial radial;
 
     Animator HUDAnim;
     Animator HitmarkerAnim;
@@ -17,6 +18,8 @@ public class scr_hud : MonoBehaviour {
     GameObject HUDHolder;
     GameObject Interactable;
     GameObject Compass;
+
+    Image SelectedGun;
 
     Image Stamina;
 
@@ -44,6 +47,7 @@ public class scr_hud : MonoBehaviour {
 
         playerMovement = player.GetComponent<scr_movement>();
         playerCamera = player.GetComponent<scr_camera>();
+        radial = GetComponent<scr_radial>();
 
         intensity = 10;
     }
@@ -51,6 +55,8 @@ public class scr_hud : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
+        //SelectedGun = radial.selectedItem;
+
         Stamina.fillAmount = playerMovement.stamina / 100;
         
         //Compass

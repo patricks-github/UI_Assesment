@@ -14,6 +14,7 @@ public class scr_movement : MonoBehaviour {
     public GameObject Blur;
     public GameObject UI_Canvas;
     public GameObject Radial;
+    GameObject HUD;
 
     public bool controllable = true;
     bool inAir = false;
@@ -58,6 +59,7 @@ public class scr_movement : MonoBehaviour {
         player = GetComponent<CharacterController>();
         Head = transform.Find("Head").gameObject;
         Blur = Head.transform.Find("Blur").gameObject;
+        HUD = UI_Canvas.transform.Find("HUD_Holder").gameObject;
 
         Radial.SetActive(false);
     }
@@ -93,6 +95,21 @@ public class scr_movement : MonoBehaviour {
 
         if (controllable == true)
         {
+            if (Blur.activeSelf)
+            {
+                Blur.SetActive(false);
+            }
+
+            if (!HUD.activeSelf)
+            {
+                HUD.SetActive(true);
+            }
+
+            if (Radial.activeSelf)
+            {
+                Radial.SetActive(false);
+            }
+
             //Mouse
             var md = new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y"));
 
@@ -157,19 +174,30 @@ public class scr_movement : MonoBehaviour {
             //Movement Directional Control
             moveAxisForward = Input.GetAxis("Vertical") * movement_speed * movement_modifier;
             moveAxisSide = Input.GetAxis("Horizontal") * movement_speed * movement_modifier;
+            moveAxisUp -= gravity * Time.deltaTime;
         }
         else
         {
             //Stop directional movement if uncontrollable
             movement_modifier = 1;
-            
+            if (moveAxisUp > 0)
+            {
+                moveAxisUp *= 0.85f;
+            }
+            moveAxisUp -= (gravity * 0.05f) * Time.deltaTime;
+
             moveAxisForward = 0 * movement_speed * movement_modifier;
             moveAxisSide = 0 * movement_speed * movement_modifier;
+
+            Blur.SetActive(true);
+
+            if (!paused && player.isGrounded)
+                if (stamina < stamina_max)
+                    stamina += (stamina_regen * 0.25f ) * Time.deltaTime;
         }
 
         //Apply movement
-        moveAxisUp -= gravity * Time.deltaTime;
-
+        
         movement_vector = new Vector3(moveAxisSide, moveAxisUp, moveAxisForward);
         movement_vector = transform.rotation * movement_vector;
         player.Move(movement_vector * Time.deltaTime);
@@ -193,14 +221,12 @@ public class scr_movement : MonoBehaviour {
 
                     Radial.SetActive(true);
 
-                    UI_Canvas.GetComponent<scr_radial>().Tab();
+                    UI_Canvas.GetComponent<scr_radial>().Tab(true);
 
                     Cursor.visible = true;
 
                     cursorLockState = CursorLockMode.None;
                     CursorLockSet();
-
-                    Blur.SetActive(true);
 
                     //Debug.Log("TAB");
                     break;
@@ -208,9 +234,8 @@ public class scr_movement : MonoBehaviour {
                 case ("Close"):
                     if (!controllable)
                     {
-                        Blur.SetActive(false);
-
                         UI_Canvas.GetComponent<scr_hud>().Tab();
+                        UI_Canvas.GetComponent<scr_radial>().Tab(false);
                         Radial.SetActive(false);
 
 
@@ -230,7 +255,6 @@ public class scr_movement : MonoBehaviour {
     {
         if (!paused)
         {
-            Blur.SetActive(true);
             Radial.SetActive(false);
             paused = true;
             controllable = false;
@@ -243,7 +267,6 @@ public class scr_movement : MonoBehaviour {
         else
         {
             controllable = true;
-            Blur.SetActive(false);
 
             UI_Canvas.GetComponent<scr_hud>().Escape();
 
