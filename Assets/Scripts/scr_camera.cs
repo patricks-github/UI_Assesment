@@ -6,7 +6,8 @@ public class scr_camera : MonoBehaviour {
 
     GameObject Head;
     GameObject Camera;
-    
+    scr_movement playerMovement;
+
     Ray rayCast;
     RaycastHit hitInfo;
 
@@ -17,16 +18,28 @@ public class scr_camera : MonoBehaviour {
     public bool Enemy;
 
     float shotTimer;
-    float shotTimer_reset = 0.1f;
+    float shotTimer_reset = 0.5f;
     float damage = 50.0f;
 
     float lookDistance = 1000.0f;
+
+    public float ammo = 12;
+    public float ammoMax = 12;
+
+    public float reloadTimer;
+    float reloadTimerReset = 1;
+
+    public bool reloading;
+
+    Vector3 lookDownRotation = new Vector3(-45, 0, 0);
 
     // Use this for initialization
     void Start ()
     {
         Head = transform.Find("Head").gameObject;
         Camera = transform.Find("Head").transform.Find("Camera").gameObject;
+
+        playerMovement = GetComponent<scr_movement>();
     }
 	
 	// Update is called once per frame
@@ -46,7 +59,7 @@ public class scr_camera : MonoBehaviour {
                 else
                 {
                     canShoot = true;
-                    Debug.Log("Can Shoot");
+                    //Debug.Log("Can Shoot");
                 }
             }
 
@@ -86,18 +99,50 @@ public class scr_camera : MonoBehaviour {
                 }
             }
 
-            if (Input.GetMouseButton(0) && canShoot)
+            if (ammo > 0)
             {
-                Shoot();
+                if (Input.GetMouseButton(0) && canShoot)
+                {
+                    Shoot();
+                    ammo -= 1;
+                }
+            }
+            
+            if (Input.GetKey(KeyCode.R) && !reloading)
+            {
+                reloadTimer = reloadTimerReset;
+                reloading = true;
+                playerMovement.Reload();
+            }
+                
+
+            if (reloading)
+            {
+                Debug.Log("Reloading");
+                if (reloadTimer > 0)
+                {
+                    reloadTimer -= 1 * Time.deltaTime;
+                }
+                else
+                {
+                    reloadTimer = 0;
+                    ammo = ammoMax;
+                    reloading = false;
+                }
             }
         }
+        else
+        {
+
+        }
+
     }
 
     void Shoot()
     {
         Ray rayCast = new Ray(Camera.transform.position, Camera.transform.forward * lookDistance);
 
-        Debug.Log("Shoot");
+        //Debug.Log("Shoot");
 
         shotTimer = shotTimer_reset;
         canShoot = false;
@@ -109,13 +154,13 @@ public class scr_camera : MonoBehaviour {
             if (hitInfo.collider.CompareTag("Enemy"))
             {
                 hitInfo.collider.gameObject.GetComponent<scr_enemy>().TakeHit(damage);
-                Debug.Log("Hit Enemy");
+                //Debug.Log("Hit Enemy");
 
                 HUD.GetComponent<scr_hud>().HitMarker();
             }
             else
             {
-                Debug.Log("No Hit");
+                //Debug.Log("No Hit");
             }
         }
     }

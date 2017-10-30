@@ -46,6 +46,11 @@ public class scr_movement : MonoBehaviour {
     float viewRange = 85;
     public Vector2 sensitivity = new Vector2 (1.25f,1);
 
+    float lookDownAngle = 45;
+    float headTurnSpeed = 5;
+
+    Quaternion lookDown;
+
     // Use this for initialization
     void Start ()
     {
@@ -161,6 +166,18 @@ public class scr_movement : MonoBehaviour {
                     Trigger_Land();
                     inAir = false;
                 }
+
+                if (Input.GetMouseButton(1))
+                {
+                    Anim.SetBool("Aiming", true);
+                }
+                else
+                {
+                    if (Anim.GetBool("Aiming") == true)
+                    {
+                        Anim.SetBool("Aiming", false);
+                    }
+                }
             }
             else
             {
@@ -189,11 +206,29 @@ public class scr_movement : MonoBehaviour {
             moveAxisForward = 0 * movement_speed * movement_modifier;
             moveAxisSide = 0 * movement_speed * movement_modifier;
 
-            Blur.SetActive(true);
+            if (Blur.activeSelf == false)
+            {
+                Blur.SetActive(true);
+            }
 
             if (!paused && player.isGrounded)
                 if (stamina < stamina_max)
                     stamina += (stamina_regen * 0.25f ) * Time.deltaTime;
+
+            //Rotate downward when player isn't controllabe and game isn't paused (Tab key)
+            if (!paused)
+            {
+                lookDown = Quaternion.Euler(lookDownAngle, Head.transform.eulerAngles.y, Head.transform.eulerAngles.z);
+
+                if (Head.transform.rotation.x < lookDown.x)
+                {
+                    Head.transform.rotation = Quaternion.Slerp(Head.transform.rotation, lookDown, headTurnSpeed * Time.deltaTime);
+                }
+                else
+                {
+                    Head.transform.rotation = lookDown;
+                }
+            }
         }
 
         //Apply movement
@@ -307,9 +342,23 @@ public class scr_movement : MonoBehaviour {
     public void Shoot()
     {
         //Debug.Log("Landed");
-
-        display_movement.z = 0.5f;
         movement_Update = true;
         timer = timer_reset / 2;
+
+        if (Anim.GetBool("Aiming") == true)
+        {
+            Anim.SetTrigger("AimShoot");
+        }
+        else
+        {
+            Anim.SetTrigger("Shoot");
+        }
+
+        UI_Canvas.GetComponent<scr_hud>().shoot();
+    }
+
+    public void Reload()
+    {
+        Anim.SetTrigger("Reload");
     }
 }

@@ -42,7 +42,6 @@ public class scr_radial : MonoBehaviour {
     float rotationStrength = 100;
 
     public int selectedItem = 1;
-    int equppedItem = 0;
 
     GameObject SelectedGun;
 
@@ -121,14 +120,10 @@ public class scr_radial : MonoBehaviour {
 
             //Debug.Log("Mouse Offset: " + mouseOffset);
             //Debug.Log("Item: " + selectedItem);
-
-            equppedItem = selectedItem;
         }
         else
         {
-            //SelectedGun.SetActive(false);
-            //SelectedGun.GetComponent<Image>().sprite = GunSprite[equppedItem];
-            //Debug.Log("Sprite: " + equppedItem);
+
         }
 	}
 
@@ -198,7 +193,7 @@ public class scr_radial : MonoBehaviour {
             }
         }
 
-        Debug.Log("Sprite:  " + selectedItem);
+        //Debug.Log("Sprite:  " + selectedItem);
         //SelectedGun.GetComponent<Image>().sprite = GunSprite[equppedItem];
         //Debug.Log("selectedItem: " + selectedItem + "   Angle: " + angle);
     }
