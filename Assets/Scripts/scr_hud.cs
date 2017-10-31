@@ -38,7 +38,7 @@ public class scr_hud : MonoBehaviour {
     public float intensity;
     
     float shootingTimer = 0;
-    float shootingTimerReset = 0.5f;
+    float shootingTimerReset = 1f;
     float shootingTimerDelay = 0.1f;
     float shotStrength = 20f;
 
@@ -101,6 +101,7 @@ public class scr_hud : MonoBehaviour {
                 Displacement.z = Mathf.Abs(Displacement.z - 0.5f);
             }
         }
+        
 
         //Hud movement
         HUDPosition.localPosition = new Vector2(-Displacement.x, -Displacement.y);
@@ -183,7 +184,7 @@ public class scr_hud : MonoBehaviour {
         shootingTimer = shootingTimerReset;
         if (Displacement.z < shotStrength)
         {
-            Displacement.z = shotStrength;
+            Displacement.z -= shotStrength;
         }
     }
 }

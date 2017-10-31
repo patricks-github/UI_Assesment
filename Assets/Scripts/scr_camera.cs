@@ -7,6 +7,7 @@ public class scr_camera : MonoBehaviour {
     GameObject Head;
     GameObject Camera;
     scr_movement playerMovement;
+    scr_radial Radial;
 
     Ray rayCast;
     RaycastHit hitInfo;
@@ -31,6 +32,8 @@ public class scr_camera : MonoBehaviour {
 
     public bool reloading;
 
+    int equippedGun;
+
     Vector3 lookDownRotation = new Vector3(-45, 0, 0);
 
     // Use this for initialization
@@ -38,6 +41,7 @@ public class scr_camera : MonoBehaviour {
     {
         Head = transform.Find("Head").gameObject;
         Camera = transform.Find("Head").transform.Find("Camera").gameObject;
+        Radial = HUD.GetComponent<scr_radial>();
 
         playerMovement = GetComponent<scr_movement>();
     }
@@ -45,6 +49,19 @@ public class scr_camera : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
+        equippedGun = Radial.selectedItem;
+
+        if (equippedGun == 7)
+        {
+            ammoMax = 120;
+            shotTimer_reset = 0.01f;
+        }
+        else
+        {
+            ammoMax = 12;
+            shotTimer_reset = 0.5f;
+        }
+
         if (gameObject.GetComponent<scr_movement>().controllable)
         {
             //Shoot timer
@@ -107,8 +124,13 @@ public class scr_camera : MonoBehaviour {
                     ammo -= 1;
                 }
             }
+
+            if (ammo > ammoMax)
+            {
+                ammo = ammoMax;
+            }
             
-            if (Input.GetKey(KeyCode.R) && !reloading)
+            if (Input.GetKey(KeyCode.R) && !reloading && (ammo < ammoMax))
             {
                 reloadTimer = reloadTimerReset;
                 reloading = true;

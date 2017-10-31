@@ -14,12 +14,15 @@ public class scr_movement : MonoBehaviour {
     public GameObject Blur;
     public GameObject UI_Canvas;
     public GameObject Radial;
+    public GameObject MetaMenuObject;
     GameObject HUD;
 
     public bool controllable = true;
     bool inAir = false;
     public bool movement_Update;
     public bool paused = false;
+
+    public bool MetaMenuOpened = false;
 
     float movement_speed = 2.0f;
     float jump_speed = 5.0f;
@@ -38,6 +41,9 @@ public class scr_movement : MonoBehaviour {
     float gravity = 9.81f;
 
     CursorLockMode cursorLockState;
+
+    KeyCode MetaMenu = KeyCode.Tab;
+    KeyCode WeaponSelection = KeyCode.LeftAlt;
 
     Vector2 mouseLook;
     Vector2 mouseSmooth;
@@ -90,13 +96,21 @@ public class scr_movement : MonoBehaviour {
 
         //Debug.Log("X = " + (int)(transform.InverseTransformDirection(player.velocity).x) + ", Y = " + (int)(transform.InverseTransformDirection(player.velocity).y) + ", Z = " + (int)(transform.InverseTransformDirection(player.velocity).z));
 
+        //Pause Button
         if (Input.GetKeyDown(KeyCode.Escape))
-            PauseMenu();
+            Menu("Esc");
 
-        if (Input.GetKey(KeyCode.Tab))
-            TabMenu("Open");
+        //Weapon Selection
+        if (Input.GetKey(WeaponSelection))
+            GunMenu("Open");
         else
-            TabMenu("Close");
+            GunMenu("Close");
+
+        //Meta Menu
+        if (Input.GetKeyUp(MetaMenu))
+        {
+            Menu("Meta");
+        }
 
         if (controllable == true)
         {
@@ -216,7 +230,7 @@ public class scr_movement : MonoBehaviour {
                     stamina += (stamina_regen * 0.25f ) * Time.deltaTime;
 
             //Rotate downward when player isn't controllabe and game isn't paused (Tab key)
-            if (!paused)
+            if (!paused | MetaMenuOpened)
             {
                 lookDown = Quaternion.Euler(lookDownAngle, Head.transform.eulerAngles.y, Head.transform.eulerAngles.z);
 
@@ -236,9 +250,40 @@ public class scr_movement : MonoBehaviour {
         movement_vector = new Vector3(moveAxisSide, moveAxisUp, moveAxisForward);
         movement_vector = transform.rotation * movement_vector;
         player.Move(movement_vector * Time.deltaTime);
+
+        if (paused)
+        {
+            if (MetaMenuOpened)
+            {
+                if (!MetaMenuObject.activeSelf)
+                {
+                    MetaMenuObject.SetActive(true);
+                }
+
+                if (!Blur.activeSelf)
+                {
+                    Blur.SetActive(true);
+                }
+            }
+        }
+        else
+        {
+            if (!MetaMenuOpened)
+            {
+                if (MetaMenuObject.activeSelf)
+                {
+                    MetaMenuObject.SetActive(false);
+                }
+
+                if (Blur.activeSelf)
+                {
+                    Blur.SetActive(false);
+                }
+            }
+        }
     }
 
-    public void TabMenu(string keyCode)
+    public void GunMenu(string keyCode)
     {
         if (!paused)
         {
@@ -248,6 +293,9 @@ public class scr_movement : MonoBehaviour {
                     if (controllable)
                         cursorLockState = CursorLockMode.Locked;
                         CursorLockSet();
+
+                    if (!Anim.GetCurrentAnimatorStateInfo(0).IsName("ArmUp"))
+                        Anim.SetTrigger("ArmUp");
 
 
                     UI_Canvas.GetComponent<scr_hud>().Tab();
@@ -277,6 +325,8 @@ public class scr_movement : MonoBehaviour {
                         Cursor.visible = false;
                         cursorLockState = CursorLockMode.Locked;
                         CursorLockSet();
+                        
+                        Anim.SetTrigger("ArmDown");
                     }
 
                     controllable = true;
@@ -286,7 +336,7 @@ public class scr_movement : MonoBehaviour {
         }
     }
 
-    public void PauseMenu()
+    public void Menu(string MenuType)
     {
         if (!paused)
         {
@@ -296,6 +346,24 @@ public class scr_movement : MonoBehaviour {
             UI_Canvas.GetComponent<scr_hud>().Escape();
             cursorLockState = CursorLockMode.None;
             Cursor.visible = true;
+
+            switch (MenuType)
+            {
+                default:
+                    break;
+
+                case ("Esc"):
+                    DebugText("Esc");
+                    break;
+
+                case ("Meta"):
+                    MetaMenuOpened = true;
+                    if (!Anim.GetCurrentAnimatorStateInfo(0).IsName("ArmUp"))
+                    {
+                        Anim.SetTrigger("ArmUp");
+                    }
+                    break;
+            }
 
             CursorLockSet();
         }
@@ -308,7 +376,26 @@ public class scr_movement : MonoBehaviour {
             Cursor.visible = false;
             cursorLockState = CursorLockMode.Locked;
             CursorLockSet();
-           
+
+            switch (MenuType)
+            {
+                default:
+                    break;
+
+                case ("Esc"):
+                    DebugText("Esc");
+                    break;
+
+                case ("Meta"):
+                    DebugText("Meta");
+                    if (!Anim.GetCurrentAnimatorStateInfo(0).IsName("ArmDown"))
+                    {
+                        Anim.SetTrigger("ArmDown");
+                    }
+                    MetaMenuOpened = false;
+                    break;
+            }
+
             paused = false;
         }
         
@@ -360,5 +447,10 @@ public class scr_movement : MonoBehaviour {
     public void Reload()
     {
         Anim.SetTrigger("Reload");
+    }
+
+    void DebugText(string text)
+    {
+        Debug.Log(text);
     }
 }
