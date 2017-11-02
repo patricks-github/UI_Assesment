@@ -17,6 +17,8 @@ public class scr_movement : MonoBehaviour {
     public GameObject MetaMenuObject;
     GameObject HUD;
 
+    public GameObject EscMenu;
+
     public bool controllable = true;
     bool inAir = false;
     public bool movement_Update;
@@ -72,6 +74,7 @@ public class scr_movement : MonoBehaviour {
         Blur = Head.transform.Find("Blur").gameObject;
         HUD = UI_Canvas.transform.Find("HUD_Holder").gameObject;
 
+        EscMenu.SetActive(false);
         Radial.SetActive(false);
     }
 	
@@ -109,7 +112,7 @@ public class scr_movement : MonoBehaviour {
         //Meta Menu
         if (Input.GetKeyUp(MetaMenu))
         {
-            Menu("Meta");
+            //Menu("Meta");
         }
 
         if (controllable == true)
@@ -354,6 +357,7 @@ public class scr_movement : MonoBehaviour {
 
                 case ("Esc"):
                     DebugText("Esc");
+                    EscMenuInteract(true);
                     break;
 
                 case ("Meta"):
@@ -384,6 +388,8 @@ public class scr_movement : MonoBehaviour {
 
                 case ("Esc"):
                     DebugText("Esc");
+                    EscMenuInteract(false);
+                    EscMenu.GetComponent<scr_pause>().Resume();
                     break;
 
                 case ("Meta"):
@@ -452,5 +458,10 @@ public class scr_movement : MonoBehaviour {
     void DebugText(string text)
     {
         Debug.Log(text);
+    }
+
+    public void EscMenuInteract(bool open)
+    {
+        EscMenu.SetActive(open);
     }
 }

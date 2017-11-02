@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class scr_menu : MonoBehaviour {
+public class scr_pause: MonoBehaviour
+{
 
     public GameObject MenuHolder;
 
@@ -15,6 +16,8 @@ public class scr_menu : MonoBehaviour {
     public GameObject S_Video;
     public GameObject S_Audio;
     public GameObject S_Controls;
+
+    public GameObject player;
 
     public GameObject Fade;
 
@@ -41,13 +44,14 @@ public class scr_menu : MonoBehaviour {
     Animator fadeAnim;
 
     // Use this for initialization
-    void Start () {
+    void Start()
+    {
         pageAnim = GetComponent<Animator>();
         fadeAnim = transform.Find("Fade").gameObject.GetComponent<Animator>();
 
         hasStarted = false;
         page = 0;
-        option = new Vector3(0,0,0);
+        option = new Vector3(0, 0, 0);
 
         Debug.Log("Started");
 
@@ -65,9 +69,10 @@ public class scr_menu : MonoBehaviour {
 
         refreshOptions();
     }
-	
-	// Update is called once per frame
-	void Update () {
+
+    // Update is called once per frame
+    void Update()
+    {
 
         inputs();
 
@@ -90,9 +95,6 @@ public class scr_menu : MonoBehaviour {
                         break;
                     case (2):
                         QuitButton();
-                        break;
-                    case (3):
-                        CreditsButton();
                         break;
                 }
             }
@@ -145,7 +147,7 @@ public class scr_menu : MonoBehaviour {
 
         if (dir == "Right")
         {
-            if (option.x == 2)
+            if (option.x == 1)
             {
                 if (page < 3)
                 {
@@ -169,19 +171,13 @@ public class scr_menu : MonoBehaviour {
                     break;
 
                 case (0):
-                    MenuButtons("Start");
+                    //MenuButtons("Start");
+                    Resume();
+                    player.GetComponent<scr_movement>().Menu("Esc");
                     break;
 
-                case (1):
-                    MenuButtons("Continue");
-                    break;
-
-                case (3):
+                case (2):
                     MenuButtons("Quit");
-                    break;
-
-                case (4):
-                    MenuButtons("Credits");
                     break;
 
             }
@@ -240,7 +236,7 @@ public class scr_menu : MonoBehaviour {
                         break;
 
                     case (1):
-                        if (option.x < 4)
+                        if (option.x < 2)
                         {
                             option.x += 1;
                         }
@@ -292,12 +288,12 @@ public class scr_menu : MonoBehaviour {
                 Settings.SetActive(false);
                 break;
 
-            case (1):
+            case (3):
                 SubMenu.SetActive(false);
                 Settings.SetActive(false);
                 break;
 
-            case (2):
+            case (1):
                 SubMenu.SetActive(true);
                 Settings.SetActive(true);
                 break;
@@ -349,10 +345,6 @@ public class scr_menu : MonoBehaviour {
             case ("Quit"):
                 button = 2;
                 break;
-
-            case ("Credits"):
-                button = 3;
-                break;
         }
         Fade.SetActive(true);
         fadeAnim.SetFloat("Speed", 1);
@@ -361,7 +353,7 @@ public class scr_menu : MonoBehaviour {
 
     public void StartButton()
     {
-        SceneManager.LoadScene("GameLevel");
+        //SceneManager.LoadScene("GameLevel");
     }
 
     public void ContinueButton()
@@ -371,11 +363,14 @@ public class scr_menu : MonoBehaviour {
 
     public void QuitButton()
     {
-        Application.Quit();
+        SceneManager.LoadScene("MainMenu");
     }
 
-    public void CreditsButton()
+    public void Resume()
     {
-        SceneManager.LoadScene("Credits");
+        pageAnim.SetInteger("page", 0);
+        page = 0;
+        option = new Vector3(0, 0, 0);
+        hasStarted = false;
     }
 }
