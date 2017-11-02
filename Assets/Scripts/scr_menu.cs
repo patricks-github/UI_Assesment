@@ -20,6 +20,7 @@ public class scr_menu : MonoBehaviour {
 
     public int page;
     public Vector3 option;
+    public float s_options;
 
     Vector2 MenuPos;
     Vector2 SubMenuPos;
@@ -198,69 +199,80 @@ public class scr_menu : MonoBehaviour {
 
     void verticalMove(string dir)
     {
-        if (page > 0)
+        if (!(page == 4))
         {
-            if (dir == "Up")
+            if (page > 0)
             {
-                switch (page)
+                if (dir == "Up")
                 {
-                    default:
-                        break;
+                    switch (page)
+                    {
+                        default:
+                            break;
 
-                    case (1):
-                        if (option.x > 0)
-                        {
-                            option.x -= 1;
-                        }
-                        break;
+                        case (1):
+                            if (option.x > 0)
+                            {
+                                option.x -= 1;
+                            }
+                            break;
 
-                    case (2):
-                        if (option.y > 0)
-                        {
-                            option.y -= 1;
-                        }
+                        case (2):
+                            if (option.y > 0)
+                            {
+                                option.y -= 1;
+                            }
 
-                        option.z = 0;
-                        break;
+                            option.z = 0;
+                            break;
 
-                    case (3):
-                        if (option.z > 0)
-                        {
-                            option.z -= 1;
-                        }
-                        break;
+                        case (3):
+                            if (option.z > 0)
+                            {
+                                option.z -= 1;
+                            }
+                            break;
+                    }
                 }
-            }
 
-            if (dir == "Down")
-            {
-                switch (page)
+                if (dir == "Down")
                 {
-                    default:
-                        break;
+                    switch (page)
+                    {
+                        default:
+                            break;
 
-                    case (1):
-                        if (option.x < 4)
-                        {
-                            option.x += 1;
-                        }
-                        break;
+                        case (1):
+                            if (option.x < 4)
+                            {
+                                option.x += 1;
+                            }
+                            break;
 
-                    case (2):
-                        if (option.y < 2)
-                        {
-                            option.y += 1;
-                        }
+                        case (2):
+                            if (option.y < 2)
+                            {
+                                option.y += 1;
+                            }
 
-                        option.z = 0;
-                        break;
+                            option.z = 0;
+                            break;
 
-                    case (3):
-                        if (option.z < 2)
-                        {
-                            option.z += 1;
-                        }
-                        break;
+                        case (3):
+                            if (option.z < 2)
+                            {
+                                option.z += 1;
+                            }
+                            break;
+                    }
+                }
+                else
+                {
+                    if (dir == "Down")
+                        SettingsControl("Down");
+
+                    if (dir == "Up")
+                        SettingsControl("Up");
                 }
 
                 Debug.Log("option: " + option.x + option.y + option.z);
@@ -329,6 +341,30 @@ public class scr_menu : MonoBehaviour {
                 S_Controls.SetActive(true);
                 break;
         }
+
+        if (page == 4)
+        {
+            switch ((int)option.y)
+            {
+                default:
+                    S_Video.SetActive(false);
+                    S_Audio.SetActive(false);
+                    S_Controls.SetActive(false);
+                    break;
+
+                case (0):
+                    S_Video.SetActive(true);
+                    S_Audio.SetActive(false);
+                    S_Controls.SetActive(false);
+                    break;
+
+                case (1):
+                    S_Video.SetActive(false);
+                    S_Audio.SetActive(true);
+                    S_Controls.SetActive(false);
+                    break;
+            }
+        }
     }
 
     public void MenuButtons(string buttonType)
@@ -377,5 +413,10 @@ public class scr_menu : MonoBehaviour {
     public void CreditsButton()
     {
         SceneManager.LoadScene("Credits");
+    }
+
+    public void SettingsControl(string button)
+    {
+
     }
 }
